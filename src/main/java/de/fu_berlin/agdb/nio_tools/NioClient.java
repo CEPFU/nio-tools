@@ -24,7 +24,7 @@ public class NioClient extends NioBase {
 		SocketChannel socketChannel = SocketChannel.open();
 		socketChannel.configureBlocking(false);
 		socketChannel.connect(new InetSocketAddress(host, port));
-		socketChannel.register(getSelector(), SelectionKey.OP_READ);
+		socketChannel.register(getSelector(), SelectionKey.OP_CONNECT);
 	}
 	
 	@Override
@@ -66,6 +66,10 @@ public class NioClient extends NioBase {
 
 	@Override
 	public void addDataToSend(byte[] data, Connection connection) {
+		addDataToSend(data);
+	}
+	
+	public void addDataToSend(byte[] data){
 		writeDataQueue.add(readDataPackage);
 	}
 }

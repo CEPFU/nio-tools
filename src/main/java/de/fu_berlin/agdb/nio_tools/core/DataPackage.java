@@ -6,6 +6,7 @@ public class DataPackage {
 
 	private ByteBuffer sizeBuffer;
 	private ByteBuffer payloadBuffer;
+	private boolean payloadFlipped;
 	
 	public DataPackage(byte[] payload) {
 		sizeBuffer = ByteBuffer.allocate(4);
@@ -34,7 +35,8 @@ public class DataPackage {
 	
 	public ByteBuffer getBufferToReceiveData(){
 		if(payloadBuffer == null){
-			if(sizeBuffer.remaining() == sizeBuffer.limit()){
+			if(sizeBuffer.remaining() <= 0){
+				sizeBuffer.flip();
 				payloadBuffer = ByteBuffer.allocate(sizeBuffer.getInt());
 			} else {
 				return sizeBuffer;
@@ -44,10 +46,13 @@ public class DataPackage {
 	}
 	
 	public boolean doneReceiving(){
-		return payloadBuffer != null && payloadBuffer.remaining() == payloadBuffer.limit();
+		return (payloadBuffer != null && payloadBuffer.remaining() == 0) || payloadFlipped;
 	}
-
+	
 	public byte[] getPayload() {
+		if(!payloadFlipped){
+			payloadBuffer.flip();
+		}
 		return payloadBuffer.array();
 	}
 }

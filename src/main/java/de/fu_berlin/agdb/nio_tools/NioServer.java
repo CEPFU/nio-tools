@@ -54,11 +54,11 @@ public class NioServer extends NioBase {
 		
 		SocketChannel socketChannel = serverSocketChannel.accept();
 		socketChannel.configureBlocking(false);
-		socketChannel.register(getSelector(), SelectionKey.OP_READ);
+		SelectionKey newSelectionKey = socketChannel.register(getSelector(), SelectionKey.OP_CONNECT);
 		
 		Connection connection = new Connection();
-		selectionKeyConnectionIdMap.put(selectionKey, connection);
-		connectionIdSelectionKeyMap.put(connection, selectionKey);
+		selectionKeyConnectionIdMap.put(newSelectionKey, connection);
+		connectionIdSelectionKeyMap.put(connection, newSelectionKey);
 	}
 
 	@Override
@@ -102,5 +102,11 @@ public class NioServer extends NioBase {
 		writeDataQueue.add(dataPackage);
 		SelectionKey selectionKey = connectionIdSelectionKeyMap.get(connection);
 		selectionKey.interestOps(SelectionKey.OP_READ | SelectionKey.OP_WRITE);
+	}
+	
+	public void bordcastData(byte[] data){
+		for (Connection connection : selectionKeyConnectionIdMap.values()) {
+			addDataToSend(data, connection);
+		}
 	}
 }
