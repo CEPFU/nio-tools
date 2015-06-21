@@ -71,5 +71,6 @@ public class NioClient extends NioBase {
 	
 	public void addDataToSend(byte[] data){
 		writeDataQueue.add(readDataPackage);
+		getSelector().wakeup();
 	}
 }

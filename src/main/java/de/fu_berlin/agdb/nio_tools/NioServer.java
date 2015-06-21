@@ -86,7 +86,7 @@ public class NioServer extends NioBase {
 	public void sendPackage(DataPackage dataPackage, SelectionKey selectionKey) {
 		List<DataPackage> writeDataQueue = writeDataMap.get(selectionKey);
 		writeDataQueue.remove(0);
-		if(writeDataQueue.size() == 0){
+		if(writeDataQueue.isEmpty()){
 			writeDataMap.remove(selectionKey);
 			selectionKey.interestOps(SelectionKey.OP_READ);
 		}
@@ -102,6 +102,7 @@ public class NioServer extends NioBase {
 		writeDataQueue.add(dataPackage);
 		SelectionKey selectionKey = connectionIdSelectionKeyMap.get(connection);
 		selectionKey.interestOps(SelectionKey.OP_READ | SelectionKey.OP_WRITE);
+		selectionKey.selector().wakeup();
 	}
 	
 	public void bordcastData(byte[] data){
