@@ -26,7 +26,7 @@ public class DataPackage {
 	}
 	
 	public boolean doneSending(){
-		return false;
+		return payloadBuffer.remaining() == 0;
 	}
 	
 	public DataPackage(){
