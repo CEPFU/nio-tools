@@ -1,7 +1,6 @@
 package de.fu_berlin.agdb.nio_tools;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.ServerSocketChannel;
@@ -36,8 +35,7 @@ public class NioServer extends NioBase {
 		ServerSocketChannel serverSocketChannel = ServerSocketChannel.open();
 		serverSocketChannel.configureBlocking(false);
 		
-		InetAddress localHost = InetAddress.getLocalHost();
-		InetSocketAddress inetSocketAddress = new InetSocketAddress(localHost, port);
+		InetSocketAddress inetSocketAddress = new InetSocketAddress("0.0.0.0", port);
 		serverSocketChannel.bind(inetSocketAddress);
 		
 		serverSocketChannel.register(getSelector(), SelectionKey.OP_ACCEPT);
