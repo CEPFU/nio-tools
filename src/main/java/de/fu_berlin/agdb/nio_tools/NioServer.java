@@ -58,9 +58,15 @@ public class NioServer extends NioBase {
 		selectionKeyConnectionIdMap.put(newSelectionKey, connection);
 		connectionIdSelectionKeyMap.put(connection, newSelectionKey);
 	}
+	
+	@Override
+	public void removeClient(SelectionKey selectionKey){
+		connectionIdSelectionKeyMap.remove(selectionKeyConnectionIdMap.get(selectionKey));
+		selectionKeyConnectionIdMap.remove(selectionKey);
+	}
 
 	@Override
-	protected DataPackage getReadDataPackage(SelectionKey selectionKey) throws IOException {
+	protected DataPackage getReadDataPackage(SelectionKey selectionKey){
 		DataPackage dataPackage = readDataMap.get(selectionKey);
 		if(dataPackage == null){
 			dataPackage = new DataPackage();
@@ -75,7 +81,7 @@ public class NioServer extends NioBase {
 	}
 
 	@Override
-	protected DataPackage getWriteDataPackage(SelectionKey selectionKey) throws IOException {
+	protected DataPackage getWriteDataPackage(SelectionKey selectionKey) {
 		List<DataPackage> writeDataQueue = writeDataMap.get(selectionKey);
 		DataPackage dataPackage = writeDataQueue.get(0);
 		return dataPackage;

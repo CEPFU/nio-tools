@@ -22,11 +22,14 @@ public abstract class NioBase implements Runnable, ISendOperationCapable, IPacka
 	
 	protected abstract void acceptClient(SelectionKey selectionKey) throws IOException;
 	
+	protected abstract void removeClient(SelectionKey selectionKey);
+	
 	protected abstract void connectToServer(SelectionKey selectionKey) throws IOException;
 	
-	protected abstract DataPackage getWriteDataPackage(SelectionKey selectionKey) throws IOException;
+	protected abstract DataPackage getWriteDataPackage(SelectionKey selectionKey);
 	
-	protected abstract DataPackage getReadDataPackage(SelectionKey selectionKey) throws IOException;
+	protected abstract DataPackage getReadDataPackage(SelectionKey selectionKey);
+
 	
 	protected Selector getSelector(){
 		return selector;
@@ -42,10 +45,15 @@ public abstract class NioBase implements Runnable, ISendOperationCapable, IPacka
 		}
 	}
 
-	protected void writeData(SelectionKey selectionKey, IPackageSendStrategy packageSendStrategy) throws IOException {
+	protected void writeData(SelectionKey selectionKey, IPackageSendStrategy packageSendStrategy) {
 		DataPackage dataPackage = getWriteDataPackage(selectionKey);
 		SocketChannel socketChannel = (SocketChannel) selectionKey.channel();
-		socketChannel.write(dataPackage.getBufferToSend());
+		try {
+			socketChannel.write(dataPackage.getBufferToSend());
+		} catch (IOException e) {
+			logger.error("Dropping client because an exception happened:", e);
+			removeClient(selectionKey);
+		}
 		
 		if(dataPackage.doneSending()){
 			packageSendStrategy.sendPackage(dataPackage, selectionKey);

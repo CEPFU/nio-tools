@@ -31,6 +31,11 @@ public class NioClient extends NioBase {
 	protected void acceptClient(SelectionKey selectionKey) throws IOException {
 		throw new UnsupportedOperationException("This is a client which can't accept clients.");
 	}
+	
+	@Override
+	protected void removeClient(SelectionKey selectionKey) {
+		throw new UnsupportedOperationException("This is a client which can't accept clients.");
+	}
 
 	@Override
 	protected void connectToServer(SelectionKey selectionKey) throws IOException {
@@ -40,7 +45,7 @@ public class NioClient extends NioBase {
 	}
 	
 	@Override
-	protected DataPackage getReadDataPackage(SelectionKey selectionKey) throws IOException {
+	protected DataPackage getReadDataPackage(SelectionKey selectionKey){
 		if(readDataPackage == null){
 			readDataPackage = new DataPackage();
 		}
@@ -53,7 +58,7 @@ public class NioClient extends NioBase {
 	}
 	
 	@Override
-	protected DataPackage getWriteDataPackage(SelectionKey selectionKey) throws IOException {
+	protected DataPackage getWriteDataPackage(SelectionKey selectionKey){
 		return writeDataQueue.get(0);
 	}
 	
