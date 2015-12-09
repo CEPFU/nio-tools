@@ -47,7 +47,7 @@ public class NioServer extends NioBase {
 	}
 
 	@Override
-	protected void acceptClient(SelectionKey selectionKey) throws IOException {
+	protected synchronized void acceptClient(SelectionKey selectionKey) throws IOException {
 		ServerSocketChannel serverSocketChannel = (ServerSocketChannel) selectionKey.channel();
 		
 		SocketChannel socketChannel = serverSocketChannel.accept();
@@ -60,13 +60,13 @@ public class NioServer extends NioBase {
 	}
 	
 	@Override
-	public void removeClient(SelectionKey selectionKey){
+	public synchronized void removeClient(SelectionKey selectionKey){
 		connectionIdSelectionKeyMap.remove(selectionKeyConnectionIdMap.get(selectionKey));
 		selectionKeyConnectionIdMap.remove(selectionKey);
 	}
 
 	@Override
-	protected DataPackage getReadDataPackage(SelectionKey selectionKey){
+	protected synchronized DataPackage getReadDataPackage(SelectionKey selectionKey){
 		DataPackage dataPackage = readDataMap.get(selectionKey);
 		if(dataPackage == null){
 			dataPackage = new DataPackage();
@@ -75,19 +75,19 @@ public class NioServer extends NioBase {
 		return dataPackage;
 	}
 
-	public void receivedPackage(DataPackage dataPackage, SelectionKey selectionKey) {
+	public synchronized void receivedPackage(DataPackage dataPackage, SelectionKey selectionKey) {
 		readDataMap.remove(selectionKey);
 		connectionHandler.handleReceivedData(dataPackage.getPayload(), selectionKeyConnectionIdMap.get(selectionKey), this);
 	}
 
 	@Override
-	protected DataPackage getWriteDataPackage(SelectionKey selectionKey) {
+	protected synchronized DataPackage getWriteDataPackage(SelectionKey selectionKey) {
 		List<DataPackage> writeDataQueue = writeDataMap.get(selectionKey);
 		DataPackage dataPackage = writeDataQueue.get(0);
 		return dataPackage;
 	}
 	
-	public void sendPackage(DataPackage dataPackage, SelectionKey selectionKey) {
+	public synchronized void sendPackage(DataPackage dataPackage, SelectionKey selectionKey) {
 		List<DataPackage> writeDataQueue = writeDataMap.get(selectionKey);
 		writeDataQueue.remove(0);
 		if(writeDataQueue.isEmpty()){
@@ -96,7 +96,7 @@ public class NioServer extends NioBase {
 		}
 	}
 
-	public void addDataToSend(byte[] data, Connection connection) {
+	public synchronized void addDataToSend(byte[] data, Connection connection) {
 		List<DataPackage> writeDataQueue = writeDataMap.get(connectionIdSelectionKeyMap.get(connection));
 		if(writeDataQueue == null){
 			writeDataQueue = new ArrayList<DataPackage>();

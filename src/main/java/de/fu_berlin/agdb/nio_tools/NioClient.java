@@ -58,11 +58,11 @@ public class NioClient extends NioBase {
 	}
 	
 	@Override
-	protected DataPackage getWriteDataPackage(SelectionKey selectionKey){
+	protected synchronized DataPackage getWriteDataPackage(SelectionKey selectionKey){
 		return writeDataQueue.get(0);
 	}
 	
-	public void sendPackage(DataPackage dataPackage, SelectionKey selectionKey) {
+	public synchronized void sendPackage(DataPackage dataPackage, SelectionKey selectionKey) {
 		writeDataQueue.remove(0);
 		if(writeDataQueue.size() == 0){
 			selectionKey.interestOps(SelectionKey.OP_READ);
@@ -74,7 +74,7 @@ public class NioClient extends NioBase {
 		addDataToSend(data);
 	}
 	
-	public void addDataToSend(byte[] data){
+	public synchronized void addDataToSend(byte[] data){
 		writeDataQueue.add(readDataPackage);
 		getSelector().wakeup();
 	}
